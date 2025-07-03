@@ -38,8 +38,11 @@ class CopyToolApp:
         self.target_btn.pack(pady=5)
 
         # 执行复制按钮
-        self.copy_btn = tk.Button(root, text="执行复制", command=self.do_copy, width=20, bg="green", fg="white")
+        self.copy_btn = tk.Button(root, text="复制并打开", command=self.do_copy, width=20, bg="green", fg="white")
         self.copy_btn.pack(pady=15)
+
+        self.copy_only_btn = tk.Button(root, text="仅复制", command=self.do_copy_only, width=20, bg="gray", fg="white")
+        self.copy_only_btn.pack(pady=5)
 
     def handle_src_drop(self, event):
         path = Path(event.data.strip("{}"))  # 处理空格或带大括号的路径
@@ -85,6 +88,20 @@ class CopyToolApp:
 
         except Exception as e:
             messagebox.showerror("错误", str(e))
+
+    def do_copy_only(self):
+        try:
+            if not self.src_file or not self.src_file.exists():
+                raise FileNotFoundError("请选择一个有效的源文件")
+            if not self.target_dir or not self.target_dir.exists():
+                raise NotADirectoryError("请选择一个有效的目标目录")
+
+            count = copy_file_to_all_subdirs(self.src_file, self.target_dir, open_after_copy=False)
+            messagebox.showinfo("复制完成", f"已将文件复制到 {count} 个子目录中（未打开文件）。")
+
+        except Exception as e:
+            messagebox.showerror("错误", str(e))
+
 
 if __name__ == "__main__":
     root = TkinterDnD.Tk()  # 用 tkinterdnd2 启动窗口

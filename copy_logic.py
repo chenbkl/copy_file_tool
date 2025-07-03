@@ -3,6 +3,7 @@ import shutil
 from pathlib import Path
 import platform
 import subprocess
+from tile_window_on_desktop import record_and_tile_window_if_needed
 
 def open_file_cross_platform(file_path: Path):
     """跨平台打开一个文件"""
@@ -12,13 +13,13 @@ def open_file_cross_platform(file_path: Path):
         if system == "Darwin":
             subprocess.run(["open", file_path])
         elif system == "Windows":
-            os.startfile(file_path)
+            record_and_tile_window_if_needed(file_path)
         else:
             print(f"当前平台（{system}）不支持自动打开文件: {file_path}")
     except Exception as e:
         print(f"无法打开文件: {e}")
 
-def copy_file_to_all_subdirs(src_file_path: str | Path, target_root_dir: str | Path) -> int:
+def copy_file_to_all_subdirs(src_file_path: str | Path, target_root_dir: str | Path, open_after_copy:bool = True) -> int:
     """
     将源文件复制到目标目录下的所有子目录中。
     如果目标子目录中已有同名文件，会被直接覆盖。
@@ -42,8 +43,9 @@ def copy_file_to_all_subdirs(src_file_path: str | Path, target_root_dir: str | P
             shutil.copy2(src_path, dst_file)  # ✅ 拷贝并覆盖
             print(f"✅ 已复制到: {dst_file}")
 
-            # ✅ 拷贝后立刻打开该目标文件
-            open_file_cross_platform(dst_file)
+            if open_after_copy:
+                # ✅ 拷贝后立刻打开该目标文件
+                open_file_cross_platform(dst_file)
 
             copied_count += 1
         except Exception as e:
